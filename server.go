@@ -54,15 +54,9 @@ func (this *Server) Handler(conn net.Conn) {
 	//当前连接的业务
 	fmt.Println("连接建立成功,尝试接收数据,IP:", conn.RemoteAddr())
 
-	user := NewUser(conn)
+	user := NewUser(conn, this)
 
-	//用户上线，将用户加入到map中
-	this.mapLock.Lock()
-	this.OnlineMap[user.Name] = user
-	this.mapLock.Unlock()
-
-	//广播当前用户上线消息
-	this.BroadCast(user, "用户已上线")
+	user.Online()
 
 	//接收客户端信息
 	go func() {
@@ -70,7 +64,7 @@ func (this *Server) Handler(conn net.Conn) {
 		for {
 			n, err := conn.Read(buf)
 			if n == 0 {
-				this.BroadCast(user, "用户已下线")
+				user.Offline()
 				return
 			}
 			if err != nil && err != io.EOF {
@@ -80,7 +74,7 @@ func (this *Server) Handler(conn net.Conn) {
 
 			msg := string(buf[:n-1])
 
-			this.BroadCast(user, msg)
+			user.DoMessage(msg)
 
 		}
 	}()
