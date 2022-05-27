@@ -84,6 +84,7 @@ func (this *Server) Start() {
 		}
 	}(listener)
 
+	//启动消息监听goroutine
 	go this.ListenMessager()
 
 	for {

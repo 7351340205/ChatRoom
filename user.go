@@ -31,6 +31,7 @@ func (this *User) ListenMessage() {
 	for {
 		msg := <-this.C
 
+		//写入消息，处理err
 		_, err := this.conn.Write([]byte(msg + "\n"))
 		if err != nil {
 			return
